@@ -1,8 +1,8 @@
 function gameStart()
-    -- Initialize all global variables for the game
 
     -- Make pixels scale!
     love.graphics.setDefaultFilter("nearest", "nearest")
+    love.window.setMode(1024, 640, {resizable = true, fullscreen = false})
 
     anim8 = require("libraries/anim8")
     sti = require("libraries/sti")
