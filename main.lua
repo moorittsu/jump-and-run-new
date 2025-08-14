@@ -11,6 +11,11 @@ function love.update(dt)
 end
 
 function love.draw()
-world:draw()
-player:draw()
+
+    cam:attach()
+        --world:draw()
+        player:draw()
+        gamemap:drawLayer(gamemap.layers["surface"])
+    cam:detach()
+
 end

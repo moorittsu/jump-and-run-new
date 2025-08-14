@@ -1,12 +1,12 @@
 player = {}
 -- Player position and size
-player.x = 100
-player.y = 100
-player.width = 128
-player.height = 128
+player.x = 200
+player.y = 400
+player.width = 24
+player.height = 32
 player.onGround = false
 
-player.collider = world:newBSGRectangleCollider(player.x, player.y, player.width, player.height, 20)
+player.collider = world:newBSGRectangleCollider(player.x, player.y, player.width, player.height, 6)
 
 -- Player movement variables
 player.xvel = 0
@@ -33,6 +33,8 @@ end
 
 function player:move(dt)
 
+     isMoving = false
+
     if isMoving == false then
         player.anim = player.animations.idle
     end
@@ -44,7 +46,6 @@ function player:move(dt)
     -- ...existing code...
 end
 
-    isMoving = false
 
 function player:applyGravity(dt)
     if player.onGround == false then
@@ -54,7 +55,7 @@ end
 
 function player:draw()
 
-    player.animations.idle:draw(player.spritesheet, player.x, player.y, nil, 4, 4, 64, 64)
+    player.animations.idle:draw(player.spritesheet, player.x, player.y, nil, 1, 1, 64, 64)
 end
 
 return player

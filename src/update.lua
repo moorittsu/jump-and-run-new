@@ -6,4 +6,5 @@ function updateGame(dt)
     player:update(dt)
     world:update(dt)
     
+    cam:update(dt)
 end
