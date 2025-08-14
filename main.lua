@@ -13,7 +13,7 @@ end
 function love.draw()
 
     cam:attach()
-        --world:draw()
+        world:draw()
         player:draw()
         gamemap:drawLayer(gamemap.layers["surface"])
     cam:detach()

@@ -1,4 +1,5 @@
 camera = require 'libraries/camera'
+local scale = 1.3
 cam = camera(0, 0, scale)
 
 function cam:update(dt)
@@ -12,26 +13,11 @@ function cam:update(dt)
     local mapW = gamemap.width * gamemap.tilewidth
     local mapH = gamemap.height * gamemap.tileheight
 
-        -- Left border
-    if camX < w/2 then
-        camX = w/2
-    end
-
-    -- Right border
-    if camY < h/2 then
-        camY = h/2
-    end
-
-    -- Right border
-    if camX > (mapW - w/2) then
-        camX = (mapW - w/2)
-    end
-    -- Bottom border
-    if camY > (mapH - h/2) then
-        camY = (mapH - h/2)
-    end
+    --clamping camera to borders
+    --[[camX = math.max(w/2, math.min(camX, mapW - w/2))
+    camY = math.max(h/2, math.min(camY, mapH - h/2))]]
 
     cam:lockPosition(camX, camY)
 
-    cam.x, cam.y = cam:position()
+
 end
