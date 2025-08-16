@@ -18,8 +18,6 @@ player.acceleration = 800
 player.friction = 500
 --player.gravity = 900
 player.jumpVelocity = 700
-player.onGround = false
-player.contactCounter = 0
 player.isMoving = false
 player.facing = "right"
 
@@ -48,12 +46,6 @@ function player:move(dt)
     local gamepads = love.joystick.getJoysticks()
     local gamepad = gamepads[1]
 
-    if player.contactCounter > 0 then
-        player.onGround = true
-    else
-        player.onGround = false
-    end
-
     --sprinting lshift or left trigger
     local sprinting = love.keyboard.isDown("lshift") or (gamepad and gamepad:getGamepadAxis("triggerleft") > 0.5)
     if sprinting then
@@ -65,11 +57,6 @@ function player:move(dt)
     end
 
     player.xvel, player.yvel = player.collider:getLinearVelocity()
-
-            -- Gravity
-    --[[if not player.onGround then
-        player.yvel = player.yvel + player.gravity * dt
-    end]]
 
     -- Movement: keyboard A/D or gamepad left stick
     local left = love.keyboard.isDown("a") or (gamepad and gamepad:getGamepadAxis("leftx") < -0.2)
@@ -119,14 +106,23 @@ function player:draw()
 end
 
 function player:jump()
-    if player.onGround == true then
+    if player:isOnGround() then
     player.xvel, player.yvel = player.collider:getLinearVelocity()
+    player.collider:setLinearVelocity(player.xvel, 0)
     player.collider:applyLinearImpulse(0, -player.jumpVelocity)
     player.isMoving = true
-    if player.contactCounter > 0 then
-        player.contactCounter = player.contactCounter - 1
     end
-    end
+end
+
+function player:isOnGround()
+local px, py = player.collider:getPosition()
+local checkW = player.width
+local checkH = 10--how many pixels to check below
+local checkX = px - player.width / 2
+local checkY = py + player.height / 2
+
+local colliders = world:queryRectangleArea(checkX, checkY, checkW, checkH, {'Ground'})
+return #colliders > 0
 end
 
 return player

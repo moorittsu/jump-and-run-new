@@ -1,19 +1,3 @@
-function beginContact(a, b, coll)
-    if (a.collision_class == 'Player' and b.collision_class == 'Ground') or
-        (b.collision_class == 'Player' and a.collision_class == 'Ground') then
-    print("beginContact")
-    player.contactCounter = player.contactCounter + 1
-    player.yvel = 0
-    end
-end
-
-function endContact(a, b, coll)
-    if (a.collision_class == 'Player' and b.collision_class == 'Ground') or
-        (b.collision_class == 'Player' and a.collision_class == 'Ground') then
-        player.contactCounter = math.max(0, player.contactCounter - 1)
-    end
-end
-
 
 function gameStart()
 
@@ -46,6 +30,5 @@ function gameStart()
     player = require("src/player")
     player.initCollider()
 
-    world:setCallbacks(beginContact, endContact)
 
 end
