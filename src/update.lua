@@ -3,8 +3,7 @@ function updateAll(dt)
 end
 
 function updateGame(dt)
-    player:update(dt)
     world:update(dt)
-    
+    player:update(dt)
     cam:update(dt)
 end
