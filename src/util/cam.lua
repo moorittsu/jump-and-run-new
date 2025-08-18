@@ -1,8 +1,8 @@
 camera = require 'libraries/camera'
 cam = camera(0, 0, scale)
 
-local referencewidth = 1024
-local referenceheight = 640
+local referencewidth = 640
+local referenceheight = 360
 
 function cam:update(dt)
 

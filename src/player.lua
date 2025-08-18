@@ -14,8 +14,9 @@ end
 player.xvel = 0
 player.yvel = 0
 player.maxspeed = 300
-player.acceleration = 800
-player.friction = 500
+player.acceleration = 2000
+player.friction = 1000
+player.frictionAir = 500
 --player.gravity = 900
 player.jumpVelocity = 700
 player.isMoving = false
@@ -28,7 +29,9 @@ player.animations = {}
 player.animations.idle = anim8.newAnimation(player.grid("1-10", 2), 0.2)
 player.animations.walk = anim8.newAnimation(player.grid("1-10", 3), 0.1)
 player.animations.run = anim8.newAnimation(player.grid("1-10", 4), 0.1)
-player.animations.jump = anim8.newAnimation(player.grid("1-6", 5), 0.2)
+player.animations.takeoff = anim8.newAnimation(player.grid(1, 5), 0.5)
+player.animations.ascent = anim8.newAnimation(player.grid("2-3", 5), 0.5)
+player.animations.peak = anim8.newAnimation(player.grid("4-5", 5), 0.2)
 player.animations.fall = anim8.newAnimation(player.grid("1-4", 6), 0.2)
 
 player.anim = player.animations.idle
@@ -38,7 +41,6 @@ function player:update(dt)
     player:move(dt)
     player.anim:update(dt)
     player.x, player.y = player.collider:getPosition()
-    print("contactCounter:", player.contactCounter)
 end
 
 function player:move(dt)
@@ -49,11 +51,11 @@ function player:move(dt)
     --sprinting lshift or left trigger
     local sprinting = love.keyboard.isDown("lshift") or (gamepad and gamepad:getGamepadAxis("triggerleft") > 0.5)
     if sprinting then
-        player.maxspeed = 200 
-        player.acceleration = 1000
+        player.maxspeed = 400 
+        player.acceleration = 2000
     else
-        player.maxspeed = 100
-        player.acceleration = 800
+        player.maxspeed = 200
+        player.acceleration = 1000
     end
 
     player.xvel, player.yvel = player.collider:getLinearVelocity()
@@ -75,10 +77,14 @@ function player:move(dt)
         player.anim = sprinting and player.animations.run or player.animations.walk
     else
         -- Apply friction when no key is pressed
-        if player.xvel > 0 then
+        if player.xvel > 0 and player:isOnGround() then
             player.xvel = math.max(player.xvel - player.friction * dt, 0)
-        elseif player.xvel < 0 then
+        elseif player.xvel < 0 and player:isOnGround() then
             player.xvel = math.min(player.xvel + player.friction * dt, 0)
+        elseif player.xvel > 0 and not player:isOnGround() then
+            player.xvel = math.max(player.xvel - player.frictionAir * dt, 0)
+        elseif player.xvel < 0 and not player:isOnGround() then
+            player.xvel = math.min(player.xvel + player.frictionAir * dt, 0)
         end
     end
 
@@ -97,6 +103,20 @@ function player:move(dt)
     if player.xvel == 0 then
         player.isMoving = false
     end
+
+    if player.yvel < 0 and not player:isOnGround() then
+        player.anim = player.animations.ascent
+        player.isMoving = true
+    elseif math.abs(player.yvel) < 1 and not player:isOnGround() then
+                player.anim = player.animations.peak
+                player.isMoving = true
+    elseif player.yvel > 0 and not player:isOnGround() then
+                player.anim = player.animations.fall
+        player.isMoving = true
+    elseif player.yvel == 0 and not player:isOnGround() then
+        player.anim = player.animations.idle
+    end
+
 end
 
 
@@ -111,6 +131,7 @@ function player:jump()
     player.collider:setLinearVelocity(player.xvel, 0)
     player.collider:applyLinearImpulse(0, -player.jumpVelocity)
     player.isMoving = true
+    player.anim = player.animations.takeoff
     end
 end
 
