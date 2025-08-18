@@ -18,9 +18,11 @@ player.acceleration = 2000
 player.friction = 1000
 player.frictionAir = 500
 --player.gravity = 900
-player.jumpVelocity = 700
+player.jumpVelocity = 500
 player.isMoving = false
 player.facing = "right"
+player.coyoteTime = 0.15 --max coyoteTime in sec
+player.coyoteTimer = 0 --timer which counts down
 
 --player animation
 player.spritesheet = love.graphics.newImage("assets/individual_sheets/male_hero_template.png")
@@ -49,13 +51,20 @@ function player:move(dt)
     local gamepad = gamepads[1]
 
     --sprinting lshift or left trigger
-    local sprinting = love.keyboard.isDown("lshift") or (gamepad and gamepad:getGamepadAxis("triggerleft") > 0.5)
+    sprinting = love.keyboard.isDown("lshift") or (gamepad and gamepad:getGamepadAxis("triggerleft") > 0.5)
     if sprinting then
-        player.maxspeed = 400 
-        player.acceleration = 2000
+        player.maxspeed = 1000 
+        player.acceleration = 300
     else
         player.maxspeed = 200
         player.acceleration = 1000
+    end
+
+    --coyote time
+    if player:isOnGround() then
+        player.coyoteTimer = player.coyoteTime
+    else
+        player.coyoteTimer = math.max(0, player.coyoteTimer - dt)     
     end
 
     player.xvel, player.yvel = player.collider:getLinearVelocity()
@@ -92,6 +101,7 @@ function player:move(dt)
         player.anim = player.animations.idle
     end
 
+
     -- Clamp the player's velocity to the maximum speed
     if math.abs(player.xvel) > player.maxspeed then
         player.xvel = player.maxspeed * (player.xvel < 0 and -1 or 1)
@@ -126,24 +136,33 @@ function player:draw()
 end
 
 function player:jump()
-    if player:isOnGround() then
+    if player:isOnGround() or player.coyoteTimer > 0 then
     player.xvel, player.yvel = player.collider:getLinearVelocity()
     player.collider:setLinearVelocity(player.xvel, 0)
     player.collider:applyLinearImpulse(0, -player.jumpVelocity)
     player.isMoving = true
     player.anim = player.animations.takeoff
+    player.coyoteTimer = 0
     end
 end
 
 function player:isOnGround()
+if sprinting then
 local px, py = player.collider:getPosition()
 local checkW = player.width
-local checkH = 10--how many pixels to check below
+local checkH = 20 --how many pixels to check below
 local checkX = px - player.width / 2
 local checkY = py + player.height / 2
-
+local colliders = world:queryRectangleArea(checkX, checkY, checkW, checkH, {'Ground'})
+return #colliders > 0
+elseif not sprinting then
+local px, py = player.collider:getPosition()
+local checkW = player.width
+local checkH = 10 --how many pixels to check below
+local checkX = px - player.width / 2
+local checkY = py + player.height / 2
 local colliders = world:queryRectangleArea(checkX, checkY, checkW, checkH, {'Ground'})
 return #colliders > 0
 end
-
+end
 return player
