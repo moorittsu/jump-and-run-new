@@ -21,6 +21,7 @@ player.frictionAir = 500
 player.jumpVelocity = 500
 player.isMoving = false
 player.facing = "right"
+player.prevFacing = "right"
 player.coyoteTime = 0.15 --max coyoteTime in sec
 player.coyoteTimer = 0 --timer which counts down
 
@@ -37,7 +38,7 @@ player.animations.peak = anim8.newAnimation(player.grid("4-5", 5), 0.2)
 player.animations.fall = anim8.newAnimation(player.grid("1-4", 6), 0.2)
 
 player.anim = player.animations.idle
-  
+
 
 function player:update(dt)
     player:move(dt)
@@ -78,11 +79,25 @@ function player:move(dt)
         player.xvel = math.max(player.xvel - player.acceleration * dt, -player.maxspeed)
         player.isMoving = true
         player.facing = "left"
+        player.prevFacing = "left"
+        player.anim = sprinting and player.animations.run or player.animations.walk
+    elseif left and not player:isOnGround() and player.prevFacing == "right" then
+        player.xvel = -player.maxspeed
+        player.isMoving = true
+        player.facing = "left"
+        player.prevFacing = "left"
         player.anim = sprinting and player.animations.run or player.animations.walk
     elseif right then
         player.xvel = math.min(player.xvel + player.acceleration * dt, player.maxspeed)
         player.isMoving = true
         player.facing = "right"
+        player.prevFacing = "right"
+        player.anim = sprinting and player.animations.run or player.animations.walk
+    elseif right and not player:isOnGround() and player.prevFacing == "left" then
+        player.xvel = player.maxspeed
+        player.isMoving = true
+        player.facing = "right"
+        player.prevFacing = "right"
         player.anim = sprinting and player.animations.run or player.animations.walk
     else
         -- Apply friction when no key is pressed
