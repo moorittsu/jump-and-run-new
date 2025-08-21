@@ -15,6 +15,7 @@ player.xvel = 0
 player.yvel = 0
 player.maxspeed = 300
 player.acceleration = 2000
+player.airAcceleration = 20000
 player.friction = 1000
 player.frictionAir = 500
 --player.gravity = 900
@@ -82,7 +83,7 @@ function player:move(dt)
         player.prevFacing = "left"
         player.anim = sprinting and player.animations.run or player.animations.walk
     elseif left and not player:isOnGround() and player.prevFacing == "right" then
-        player.xvel = -player.maxspeed
+        player.xvel = math.max(player.xvel - player.airAcceleration * dt, -player.maxspeed)
         player.isMoving = true
         player.facing = "left"
         player.prevFacing = "left"
@@ -94,7 +95,7 @@ function player:move(dt)
         player.prevFacing = "right"
         player.anim = sprinting and player.animations.run or player.animations.walk
     elseif right and not player:isOnGround() and player.prevFacing == "left" then
-        player.xvel = player.maxspeed
+        player.xvel = math.min(player.xvel + player.airAcceleration * dt, player.maxspeed)
         player.isMoving = true
         player.facing = "right"
         player.prevFacing = "right"
